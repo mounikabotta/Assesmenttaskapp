@@ -1,5 +1,8 @@
 package com.mouni.assesmenttaskapp.Ui;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,30 +46,39 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         Log.d("User","First Name:" +user.getFirstName());
         holder.emailTextView.setText(user.getEmail());
 
-        // Load avatar or local image using Glide
-        if (user.getLocalImagePath() != null) {
-            Glide.with(context)
-                    .load(user.getLocalImagePath())
-                    .placeholder(R.drawable.placeholder) // A placeholder image
-                    .into(holder.avatarImageView);
+        if (user.getLocalImagePath() != null && !user.getLocalImagePath().isEmpty()) {
+            // Load local image
+            holder.avatarImageView.setImageURI(Uri.parse(user.getLocalImagePath()));
         } else {
             Glide.with(context)
                     .load(user.getAvatar())
-                    .placeholder(R.drawable.placeholder) // A placeholder image
                     .into(holder.avatarImageView);
         }
 
+
         // Set click listener for image upload
         holder.uploadIcon.setOnClickListener(v -> {
-            if (onImageClickListener != null) {
-                onImageClickListener.onImageClick(user);
-            }
+            // Launch ImageUploadActivity for this user
+            Intent intent = new Intent(context, ImageUploadActivity.class);
+            intent.putExtra("user_id", user.getId());
+            ((Activity) context).startActivityForResult(intent, MainActivity.REQUEST_IMAGE_UPLOAD);
         });
+
     }
 
     @Override
     public int getItemCount() {
         return userList != null ? userList.size() : 0;
+    }
+
+    public void updateUserImage(int userId, String localImagePath) {
+        for (User user : userList) {
+            if (user.getId() == userId) {
+                user.setLocalImagePath(localImagePath);
+                break;
+            }
+        }
+        notifyDataSetChanged();
     }
 
     public void setUserList(List<User> users) {

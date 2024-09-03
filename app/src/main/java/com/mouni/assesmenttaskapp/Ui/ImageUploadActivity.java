@@ -139,17 +139,23 @@ public class ImageUploadActivity extends AppCompatActivity {
                 if (user != null) {
                     user.setLocalImagePath(file.getAbsolutePath());
                     userDao.updateLocalImagePath(userId, file.getAbsolutePath());
+
+                    // Update result to main activity
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra("user_id", userId);
+                    resultIntent.putExtra("local_image_path", file.getAbsolutePath());
+                    setResult(RESULT_OK, resultIntent);
+                    finish();
                 }
             }).start();
 
             Toast.makeText(this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
-            setResult(RESULT_OK);
-            finish();
 
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show();
         }
     }
+
 }
 

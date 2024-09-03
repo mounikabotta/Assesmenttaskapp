@@ -36,6 +36,7 @@ import com.mouni.assesmenttaskapp.R;
 import com.mouni.assesmenttaskapp.viewModel.UserViewModel;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -45,7 +46,8 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.OnIma
     private UserAdapter userAdapter;
     private FusedLocationProviderClient fusedLocationClient;
     private TextView locationTextView;
-    private  static final int PERMISSION_REQUEST_CODE = 1;
+    private static final int PERMISSION_REQUEST_CODE = 1;
+    public static final int REQUEST_IMAGE_UPLOAD = 102;
 
 
     @Override
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.OnIma
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         fetchUserLocation();
     }
+
     private void fetchUserLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -114,7 +117,6 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.OnIma
     }
 
 
-
     @Override
     public void onImageClick(User user) {
         // Handle image upload here (e.g., open camera/gallery)
@@ -126,11 +128,20 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.OnIma
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1001 && resultCode == RESULT_OK) {
-            // Handle image upload result (update user image in the list)
-            userViewModel.fetchUsers(2); // Refetch or refresh the user list
+        if (requestCode == REQUEST_IMAGE_UPLOAD && resultCode == RESULT_OK && data != null) {
+            int userId = data.getIntExtra("user_id", -1);
+            String localImagePath = data.getStringExtra("local_image_path");
+            if (userId != -1 && localImagePath != null) {
+                userAdapter.updateUserImage(userId, localImagePath);
+            }
         }
     }
+
+    private List<User> getUserList() {
+        // Retrieve user list from your data source (API, database, etc.)
+        return new ArrayList<>();
+    }
+
 }
 
 
